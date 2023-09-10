@@ -21,3 +21,17 @@ module.exports.createUser = (req, res, next) => {
     })
     .catch(next);
 };
+
+module.exports.updateUser = (req, res, next) => {
+  const { name, about } = req.body;
+  User.findOneAndUpdate(req.user._id, { name, about })
+    .then((user) => res.send(user))
+    .catch(next);
+};
+
+module.exports.updateAvatar = (req, res, next) => {
+  const { avatar } = req.body;
+  User.findOneAndUpdate(req.user._id, { avatar })
+    .then((user) => res.send(user))
+    .catch(next);
+};
