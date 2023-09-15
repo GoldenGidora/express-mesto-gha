@@ -8,23 +8,32 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.getUserById = (req, res) => {
-  User.find({ _id: req.params.userId })
-    .then((users) => res.send(users))
-    .catch((err) => { errorsHandler(err, res); });
+  User.findById(req.params.userId)
+    .orFail(new Error('NotValidId'))
+    .then((user) => {
+      res.send(user);
+    })
+    .catch((err) => {
+      if (err.message === 'NotValidId') {
+        res.status(404).send({ message: 'Пользователь не найден' });
+      } else {
+        errorsHandler(err, res);
+      }
+    });
 };
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((user) => {
-      res.send(user);
+      res.status(201).send(user);
     })
     .catch((err) => { errorsHandler(err, res); });
 };
 
 module.exports.updateUser = (req, res) => {
   const { name, about } = req.body;
-  User.findOneAndUpdate(req.user._id, { name, about })
+  User.findOneAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => res.send(user))
     .catch((err) => { errorsHandler(err, res); });
 };
